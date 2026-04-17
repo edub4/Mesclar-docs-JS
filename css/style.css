@@ -78,14 +78,22 @@ main{
 .arquivos{
   display: flex;
   align-items: center;
-  column-gap: 10px;
+  gap: 10px;
   flex-wrap: wrap;
 }
 #mesclar-arq{
   font-weight: 600;
   width: 200px;
   height: 30px;
+  border-radius: 8px;
+  border: solid 1px #aaa;
+  transition: 300ms;
 }
+#mesclar-arq:hover{
+  scale: 1.02;
+  background-color: #d3d3d3;
+}
+
 main{
   row-gap: 50px;
   display: flex;
@@ -103,8 +111,25 @@ main{
 }
 header{
   top: 50px;
+  left: 50px;
   position: absolute;
 }
 header img{
   width: 100px;
+}
+footer {
+  margin-top: 40px;
+  padding: 15px;
+  text-align: center;
+  color: #cacaca;
+  font-size:14px;
+}
+
+footer a {
+  color: #00bfff;
+  text-decoration: none;
+}
+
+footer a:hover {
+  text-decoration: underline;
 }

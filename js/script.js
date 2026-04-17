@@ -29,34 +29,29 @@ function criarInput() {
     });
   });
 
-  // ✅ AQUI ESTÁ O CERTO
+  // preview
   input.addEventListener("change", () => {
     if (!input.files || !input.files[0]) return;
 
     const file = input.files[0];
 
-    // remove texto
     p.style.display = "none";
 
-    // remove preview antigo
     const oldPreview = dropzone.querySelector(".preview");
     if (oldPreview) oldPreview.remove();
 
     let preview;
 
-    // 📸 IMAGEM
     if (file.type.startsWith("image/")) {
       preview = document.createElement("img");
       preview.src = URL.createObjectURL(file);
     }
 
-    // 📄 PDF
     else if (file.type === "application/pdf") {
       preview = document.createElement("div");
       preview.innerHTML = `📄 <b>${file.name}</b>`;
     }
 
-    // 📝 DOC / DOCX
     else if (
       file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
       file.type === "application/msword"
@@ -65,7 +60,6 @@ function criarInput() {
       preview.innerHTML = `📝 <b>${file.name}</b>`;
     }
 
-    // 📦 OUTROS
     else {
       preview = document.createElement("div");
       preview.innerHTML = `📁 <b>${file.name}</b>`;
@@ -74,7 +68,7 @@ function criarInput() {
     preview.classList.add("preview");
     dropzone.appendChild(preview);
 
-    // cria novo campo automático
+    // novo input automático
     if (!label.nextElementSibling) {
       container.appendChild(criarInput());
     }
@@ -83,24 +77,33 @@ function criarInput() {
   return label;
 }
 
-// cria o primeiro input ao carregar
 container.appendChild(criarInput());
 
+
+// =======================
+// MESCLAR
+// =======================
 const btnMesclar = document.querySelector("#mesclar-arq");
 
 btnMesclar.addEventListener("click", async () => {
   const { PDFDocument } = PDFLib;
 
   const pdfFinal = await PDFDocument.create();
-
   const inputs = document.querySelectorAll("input[type='file']");
+
+  let nomeArquivo = "arquivo_mesclado";
 
   for (let input of inputs) {
     if (!input.files || !input.files[0]) continue;
 
     const file = input.files[0];
 
-    // 📸 IMAGEM → converte pra PDF
+    // ✅ pega nome do primeiro arquivo válido
+    if (nomeArquivo === "arquivo_mesclado") {
+      nomeArquivo = file.name.split(".")[0];
+    }
+
+    // 📸 IMAGEM
     if (file.type.startsWith("image/")) {
       const bytes = await file.arrayBuffer();
 
@@ -120,13 +123,18 @@ btnMesclar.addEventListener("click", async () => {
       });
     }
 
-    // 📄 PDF → junta páginas
+    // 📄 PDF
     else if (file.type === "application/pdf") {
       const bytes = await file.arrayBuffer();
       const pdf = await PDFDocument.load(bytes);
 
       const pages = await pdfFinal.copyPages(pdf, pdf.getPageIndices());
       pages.forEach(p => pdfFinal.addPage(p));
+    }
+
+    // 📝 DOC/DOCX (apenas aviso)
+    else {
+      console.warn("DOC/DOCX não é suportado para mesclagem ainda:", file.name);
     }
   }
 
@@ -138,6 +146,6 @@ btnMesclar.addEventListener("click", async () => {
 
   const a = document.createElement("a");
   a.href = url;
-  a.download = "documento_mesclado.pdf";
+  a.download = nomeArquivo + "_mesclado.pdf";
   a.click();
 });
