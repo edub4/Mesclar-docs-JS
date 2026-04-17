@@ -1,5 +1,7 @@
 const container = document.querySelector(".arquivos");
 
+
+
 function criarInput() {
   const label = document.createElement("label");
   label.className = "file-input";
@@ -78,7 +80,15 @@ function criarInput() {
 }
 
 container.appendChild(criarInput());
+const btnResetar = document.querySelector("#resetar-arq");
 
+btnResetar.addEventListener("click", () => {
+  // remove tudo
+  container.innerHTML = "";
+
+  // cria um input novo vazio
+  container.appendChild(criarInput());
+});
 
 // =======================
 // MESCLAR
@@ -86,10 +96,18 @@ container.appendChild(criarInput());
 const btnMesclar = document.querySelector("#mesclar-arq");
 
 btnMesclar.addEventListener("click", async () => {
+  const inputs = document.querySelectorAll("input[type='file']");
+
+  // verifica se existe pelo menos 1 arquivo
+  const temArquivo = Array.from(inputs).some(input => input.files && input.files[0]);
+
+  if (!temArquivo) {
+    alert("Adicione pelo menos um arquivo antes de mesclar.");
+    return;
+  }
   const { PDFDocument } = PDFLib;
 
   const pdfFinal = await PDFDocument.create();
-  const inputs = document.querySelectorAll("input[type='file']");
 
   let nomeArquivo = "arquivo_mesclado";
 
@@ -98,12 +116,10 @@ btnMesclar.addEventListener("click", async () => {
 
     const file = input.files[0];
 
-    // ✅ pega nome do primeiro arquivo válido
     if (nomeArquivo === "arquivo_mesclado") {
       nomeArquivo = file.name.split(".")[0];
     }
 
-    // 📸 IMAGEM
     if (file.type.startsWith("image/")) {
       const bytes = await file.arrayBuffer();
 
@@ -123,7 +139,6 @@ btnMesclar.addEventListener("click", async () => {
       });
     }
 
-    // 📄 PDF
     else if (file.type === "application/pdf") {
       const bytes = await file.arrayBuffer();
       const pdf = await PDFDocument.load(bytes);
@@ -132,11 +147,11 @@ btnMesclar.addEventListener("click", async () => {
       pages.forEach(p => pdfFinal.addPage(p));
     }
 
-    // 📝 DOC/DOCX (apenas aviso)
     else {
       console.warn("DOC/DOCX não é suportado para mesclagem ainda:", file.name);
     }
   }
+
 
   // gerar arquivo final
   const finalBytes = await pdfFinal.save();
@@ -148,4 +163,18 @@ btnMesclar.addEventListener("click", async () => {
   a.href = url;
   a.download = nomeArquivo + "_mesclado.pdf";
   a.click();
+});
+
+const btn = document.querySelector("#copiar-email");
+
+btn.addEventListener("click", () => {
+  const email = document.querySelector(".email").textContent;
+
+  navigator.clipboard.writeText(email)
+    .then(() => {
+      alert("Email copiado!");
+    })
+    .catch(() => {
+      alert("Erro ao copiar.");
+    });
 });

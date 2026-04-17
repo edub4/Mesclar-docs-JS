@@ -81,7 +81,7 @@ main{
   gap: 10px;
   flex-wrap: wrap;
 }
-#mesclar-arq{
+.btns button{
   font-weight: 600;
   width: 200px;
   height: 30px;
@@ -89,11 +89,14 @@ main{
   border: solid 1px #aaa;
   transition: 300ms;
 }
-#mesclar-arq:hover{
+.btns button:hover{
   scale: 1.02;
   background-color: #d3d3d3;
 }
-
+#mesclar-arq{
+  color: #cff1d8;
+  background-color: #00721c;
+}
 main{
   row-gap: 50px;
   display: flex;
