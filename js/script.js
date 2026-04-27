@@ -1,7 +1,5 @@
 const container = document.querySelector(".arquivos");
 
-
-
 function criarInput() {
   const label = document.createElement("label");
   label.className = "file-input";
@@ -14,7 +12,7 @@ function criarInput() {
 
   const input = document.createElement("input");
   input.type = "file";
-  input.accept = "image/*,.pdf,.doc,.docx";
+  input.accept = "image/png,image/jpeg,.pdf";
 
   dropzone.appendChild(p);
   label.appendChild(dropzone);
@@ -96,6 +94,7 @@ btnResetar.addEventListener("click", () => {
 const btnMesclar = document.querySelector("#mesclar-arq");
 
 btnMesclar.addEventListener("click", async () => {
+  try {
   const inputs = document.querySelectorAll("input[type='file']");
 
   // verifica se existe pelo menos 1 arquivo
@@ -141,7 +140,9 @@ btnMesclar.addEventListener("click", async () => {
 
     else if (file.type === "application/pdf") {
       const bytes = await file.arrayBuffer();
-      const pdf = await PDFDocument.load(bytes);
+      const pdf = await PDFDocument.load(bytes, {
+        ignoreEncryption: true
+      });
 
       const pages = await pdfFinal.copyPages(pdf, pdf.getPageIndices());
       pages.forEach(p => pdfFinal.addPage(p));
@@ -158,11 +159,25 @@ btnMesclar.addEventListener("click", async () => {
 
   const blob = new Blob([finalBytes], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-
+  
   const a = document.createElement("a");
   a.href = url;
   a.download = nomeArquivo + "_mesclado.pdf";
+  
+  document.body.appendChild(a);
+  
+  await new Promise(r => setTimeout(r, 500));
+  
   a.click();
+  a.remove();
+  
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  }, 15000);
+} catch (error) {
+  console.error(error);
+  alert("Erro ao gerar PDF. Verifique os arquivos.");
+}
 });
 
 const btn = document.querySelector("#copiar-email");
